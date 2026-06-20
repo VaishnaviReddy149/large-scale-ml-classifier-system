@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# Data (too large for GitHub)
+data/creditcard.csv
+data/processed/
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Models (too large)
+models/random_forest.pkl
+
+# VS Code
+.vscode/
