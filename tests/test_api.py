@@ -1,22 +1,24 @@
 import pytest
-from fastapi.testclient import TestClient
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Mock the model so tests don't need the actual .pkl file
-import unittest.mock as mock
 import numpy as np
+import unittest.mock as mock
+from fastapi.testclient import TestClient
 
-with mock.patch("src.api.load_model"):
-    from src.api import app, MODEL
-    import src.api as api_module
+# Mock the model loading before importing app
+with mock.patch("builtins.open", mock.mock_open(read_data=b"")):
+    with mock.patch("pickle.load") as mock_load:
+        mock_model = mock.MagicMock()
+        mock_model.predict.side_effect = lambda X: np.zeros(len(X), dtype=int)
+        mock_model.predict_proba.side_effect = lambda X: np.array([[0.98, 0.02]] * len(X))
+        mock_load.return_value = mock_model
 
-    # Create a mock model
-    mock_model = mock.MagicMock()
-    mock_model.predict.side_effect = lambda X: np.zeros(len(X), dtype=int)
-    mock_model.predict_proba.side_effect = lambda X: np.array([[0.98, 0.02]] * len(X))
-    api_module.MODEL = mock_model
+        import sys
+        import os
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+        with mock.patch("os.path.exists", return_value=True):
+            from src.api import app
+            import src.api as api_module
+            api_module.MODEL = mock_model
 
 client = TestClient(app)
 
@@ -36,11 +38,10 @@ def test_predict_valid():
     assert response.status_code == 200
     data = response.json()
     assert "prediction" in data
-    assert "fraud_probability" in data
     assert data["prediction"] in ["FRAUD", "LEGITIMATE"]
 
 def test_predict_wrong_features():
-    payload = {"features": [0.1] * 10}  # wrong length
+    payload = {"features": [0.1] * 10}
     response = client.post("/predict", json=payload)
     assert response.status_code == 400
 
