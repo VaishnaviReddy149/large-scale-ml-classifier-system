@@ -21,7 +21,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install fastapi uvicorn scikit-learn numpy pandas pytest requests httpx
+        pip install fastapi uvicorn scikit-learn numpy pandas pytest requests httpx mlflow
 
     - name: Run tests
       run: pytest tests/ -v
