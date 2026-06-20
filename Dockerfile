@@ -13,9 +13,11 @@ ENV JAVA_HOME=/usr/lib/jvm/default-java
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code and model
+# Copy source code
 COPY src/ ./src/
-COPY models/ ./models/
+
+# Create empty models directory (model downloaded at runtime)
+RUN mkdir -p models
 
 EXPOSE 8000
 
