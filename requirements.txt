@@ -1,0 +1,10 @@
+torch==2.5.1
+scikit-learn==1.6.1
+fastapi==0.115.6
+uvicorn==0.32.1
+pandas==2.2.3
+numpy==2.2.0
+pytest==8.3.4
+requests==2.32.3
+pyspark==4.0.0
+mlflow==3.14.0
